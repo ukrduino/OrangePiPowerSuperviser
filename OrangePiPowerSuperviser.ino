@@ -1,10 +1,10 @@
 //#include "DigiKeyboard.h"
 
-double enableThreshold = 4.0;
-double disableThreshold = 4.5;
+double enableThreshold = 4.5;
+double disableThreshold = 4.8;
 bool mainConnected = false;
 bool boardEnabled = false;
-int signalPin = 0;
+int signalPin = 4;
 int relayPin = 2;
 int ledPin = 1;
 
@@ -18,7 +18,7 @@ void setup()
 	pinMode(signalPin, OUTPUT);
 	pinMode(relayPin, OUTPUT);
 	digitalWrite(relayPin, HIGH);
-	analogWrite(signalPin, 0); // High 3.3 v
+	digitalWrite(signalPin, LOW);
 }
 
 void loop()
@@ -26,7 +26,7 @@ void loop()
 
 	//read and convert the voltage to a double
 	long voltage = readVcc();
-	double decimalVoltage = doubleMap(double(voltage), 0, 6000, 0, 6);
+	decimalVoltage = doubleMap(double(voltage), 0, 6000, 0, 6);
 	if (decimalVoltage > lastReading || decimalVoltage > 4.9)
 	{
 		mainConnected = true;
@@ -42,14 +42,14 @@ void loop()
 
 	if (mainConnected && !boardEnabled && lastReading > enableThreshold)
 	{
-		analogWrite(signalPin, 160); // High 3.3 v
+		digitalWrite(signalPin, LOW); // High 3.3 v
 		digitalWrite(relayPin, LOW); // Enable board
 		boardEnabled = true;
 	}
 
 	if (boardEnabled && !mainConnected && lastReading < disableThreshold)
 	{
-		analogWrite(signalPin, 0);
+		digitalWrite(signalPin, HIGH);
 		digitalWrite(ledPin, HIGH);
 		delay(30000);
 		digitalWrite(relayPin, HIGH); // Enable board
